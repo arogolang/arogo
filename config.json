@@ -1,0 +1,11 @@
+{
+    "noweb": false,
+    "notcp": false,
+    "noapi": false,
+
+    "strport": 8888,
+    "apiaddr": ":8443",
+
+	"log": "aropool.log",
+    "debug": true
+}

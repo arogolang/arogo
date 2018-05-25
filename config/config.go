@@ -23,9 +23,37 @@ var (
 	instantiation = sync.Once{}
 )
 
+type SqlDBConf struct {
+	Address       string `json:"address"`
+	DBName        string `json:"dbname"`
+	UserName      string `json:"username"`
+	Password      string `json:"password"`
+	MaxConcurrent int    `json:"maxconcurrent"`
+}
+
+func (s *SqlDBConf) Check() bool {
+	return len(s.Address) > 0 && len(s.DBName) > 0 && len(s.UserName) > 0 &&
+		len(s.Password) > 0 && s.MaxConcurrent > 0
+}
+
 // Config holds the global application configuration.
 type Config struct {
+	PoolDB SqlDBConf `json:"pooldb"`
+	NodeDB SqlDBConf `json:"nodedb"`
+
 	Debug bool `json:"debug"`
+
+	CoinName   string `default:"arionum" json:"coinname"`
+	Address    string `json:"address"`
+	PublicKey  string `json:"publickey"`
+	PrivateKey string `json:"privatekey"`
+	Limit      int64  `default:100000 json:"limit"`
+
+	FeeAddress    string  `json:"feeaddress"`
+	Fee           float64 `default:0.02 json:"fee"`
+	MinerReward   float64 `default:0.3 json:"miner_reward"`
+	HisReward     float64 `default:0.2 json:"his_reward"`
+	CurrentReward float64 `default:0.5 json:"current_reward"`
 
 	DisableWebsocket bool   `default:"true" json:"nowebsocket"`
 	DisableStratum   bool   `default:"true" json:"nostratum"`
@@ -33,7 +61,8 @@ type Config struct {
 	PoolStartumAddr  string `default:":8888" json:"stratumaddr"`
 	PoolWebAddr      string `default:":8080" json:"webaddr"`
 
-	ShareValidation int `json:"validateshares" default:"2"`
+	NodeAddrURL     string `default:"http://127.0.0.1:9999" json:"nodeurl"`
+	ShareValidation int    `json:"validateshares" default:"2"`
 
 	// LogFile and DiscardLog are mutually exclusive - logfile will be used if present
 	LogFile    string `json:"log"`

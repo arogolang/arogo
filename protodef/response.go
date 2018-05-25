@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+
+	"github.com/arogolang/arogo/config"
 )
 
 func WriteData(w io.Writer, data interface{}) error {
@@ -18,18 +20,22 @@ type ResponseAPI struct {
 }
 
 func APIEcho(w http.ResponseWriter, data interface{}) error {
+	cfg := config.Get()
+
 	resp := ResponseAPI{
 		Status: "ok",
-		Coin:   "arionum",
+		Coin:   cfg.CoinName,
 		Data:   data,
 	}
 	return WriteData(w, resp)
 }
 
 func APIError(w http.ResponseWriter, data interface{}) error {
+	cfg := config.Get()
+
 	resp := ResponseAPI{
 		Status: "error",
-		Coin:   "arionum",
+		Coin:   cfg.CoinName,
 		Data:   data,
 	}
 

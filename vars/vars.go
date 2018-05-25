@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strconv"
+
+	"github.com/arogolang/arogo/mysqldb"
 )
 
 type CurrentBlockInfo struct {
@@ -19,6 +21,11 @@ type CurrentMineInfo struct {
 
 	PublicKey string `json:"public_jkey"`
 	Limit     int64  `json:"limit"`
+}
+
+type PoolDBMgr struct {
+	PoolDB *mysqldb.MySqlDB
+	NodeDB *mysqldb.MySqlDB
 }
 
 var GlobalBlockInfo CurrentBlockInfo

@@ -9,7 +9,9 @@ import (
 
 	"github.com/arogolang/arogo/config"
 	"github.com/arogolang/arogo/errlog"
+	"github.com/arogolang/arogo/mysqldb"
 	"github.com/arogolang/arogo/pool"
+	"github.com/arogolang/arogo/vars"
 )
 
 var configFile *string
@@ -37,9 +39,27 @@ func main() {
 	}
 
 	cfg := config.Get()
+	dbMgr := &vars.PoolDBMgr{}
 
-	pool.NewPoolServer(cfg.PoolWebAddr)
-	//pool.NewPoolStratumServer(cfg.PoolStartumAddr)
+	var err error
+
+	dbMgr.NodeDB, err = mysqldb.NewMySqlDB(&cfg.NodeDB)
+	if err != nil {
+		errlog.Fatalf("cannot init mysql", err)
+	}
+
+	dbMgr.PoolDB, err = mysqldb.NewMySqlDB(&cfg.PoolDB)
+	if err != nil {
+		errlog.Fatalf("cannot init mysql", err)
+	}
+
+	tableExists, err := dbMgr.PoolDB.CheckTables(cfg.PoolDB.DBName, "miners")
+	if err != nil || tableExists == false {
+		dbMgr.PoolDB.InitTables()
+	}
+
+	pool.NewPoolServer(cfg.PoolWebAddr, dbMgr)
+	//pool.NewPoolStratumServer(cfg.PoolStartumAddr, mysqlDB)
 
 	tCh := make(chan os.Signal)
 	signal.Notify(tCh, syscall.SIGINT, syscall.SIGTERM)

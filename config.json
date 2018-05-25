@@ -1,11 +1,42 @@
 {
     "noweb": false,
-    "notcp": false,
-    "noapi": false,
+    "nostratum": false,
 
-    "strport": 8888,
-    "apiaddr": ":8443",
+    "stratumaddr": ":8888",
+    "webaddr": ":8080",
 
-	"log": "aropool.log",
+    "coinname":"arionum",
+    "address":"ADDR",
+    "publickey":"PUBKEY",
+    "privatekey":"PRIVKEY",
+    "limit": 1000000,
+
+    "nodeurl":"http://127.0.0.1:9999",
+
+    "feeaddress":"PUBKEY",
+    "fee": 0.02,
+
+    "miner_reward":0.3,
+    "his_reward":0.5,
+    "current_reward":0.2,
+
+    "pooldb": {
+        "address":"127.0.0.1:3307",
+        "dbname":"aropool",
+        "username":"root",
+        "password":"PWD",
+        "maxconcurrent": 20
+    },
+
+    "nodedb": {
+        "address":"127.0.0.1:3307",
+        "dbname":"aronode",
+        "username":"root",
+        "password":"PWD",
+        "maxconcurrent": 20
+    },
+
+    "log": "aropool.log",
+    "loglevel": 3, 
     "debug": true
 }

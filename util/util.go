@@ -91,6 +91,14 @@ func GetAroHash(data string) string {
 	return hex.EncodeToString(r[:])
 }
 
+func FileExists(f string) bool {
+	_, err := os.Stat(f)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return err == nil
+}
+
 func SubmitNonceToNode(nodeurl string, argon string, nonce string, pubkey string, privkey string) (ok bool, err error) {
 	form := url.Values{}
 	form.Add("argon", argon)

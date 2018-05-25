@@ -66,6 +66,7 @@ type Config struct {
 
 	// LogFile and DiscardLog are mutually exclusive - logfile will be used if present
 	LogFile    string `json:"log"`
+	LogLevel   int    `json:"loglevel"`
 	DiscardLog bool   `json:"nolog"`
 }
 

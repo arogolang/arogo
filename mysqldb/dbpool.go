@@ -2,18 +2,26 @@ package mysqldb
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/arogolang/arogo/model"
 	"github.com/arogolang/arogo/util"
 )
 
 func (p *MySqlDB) InitTables() (err error) {
-	sql, err := util.ReadFileToString("pool.sql")
+	sqlAll, err := util.ReadFileToString("pool.sql")
 	if err != nil {
 		return err
 	}
 
-	p.db.Exec(sql)
+	sqlLine := strings.Split(sqlAll, ";")
+	for _, sql := range sqlLine {
+		_, err = p.db.Exec(sql)
+		if err != nil {
+			break
+		}
+	}
+
 	return
 }
 
@@ -30,21 +38,19 @@ func (p *MySqlDB) CheckTables(db string, table string) (exists bool, err error) 
 }
 
 func (p *MySqlDB) UpdateWorkerHashRate(worker string, addr string, hr int64, ip string) (err error) {
-	_, err = p.db.Exec("INSERT into workers SET id=?, hashrate=?,updated=UNIX_TIMESTAMP(), miner=?, ip=? ON DUPLICATE KEY UPDATE updated=UNIX_TIMESTAMP(), hashrate=?, ip=?", worker, hr, addr, ip, hr, ip)
-
+	_, err = p.db.Exec("INSERT into workers SET id=?, hashrate=?,updated=UNIX_TIMESTAMP(), miner=?, ip=? ON DUPLICATE KEY UPDATE updated=UNIX_TIMESTAMP(), hashrate=?, ip=?",
+		worker, hr, addr, ip, hr, ip)
 	return
 }
 
-func (p *MySqlDB) GetIPRejectCount(ip string) (int64, error) {
-	var count int64
-	err := p.db.Get(&count, "SELECT COUNT(1) FROM rejects WHERE ip=? AND data>UNIX_TIMESTAMP()-20", ip)
-	return count, err
+func (p *MySqlDB) GetIPRejectCount(ip string) (count int64, err error) {
+	err = p.db.Get(&count, "SELECT COUNT(1) FROM rejects WHERE ip=? AND data>UNIX_TIMESTAMP()-20", ip)
+	return
 }
 
-func (p *MySqlDB) GetNonceCount(nonce string) (int64, error) {
-	var count int64
-	err := p.db.Get(&count, "SELECT count(1) FROM nonces WHERE nonce=?", nonce)
-	return count, err
+func (p *MySqlDB) GetNonceCount(nonce string) (cound int64, err error) {
+	err = p.db.Get(&count, "SELECT count(1) FROM nonces WHERE nonce=?", nonce)
+	return
 }
 
 func (p *MySqlDB) InsertAbUser(miner string, nonce string) (err error) {
@@ -81,22 +87,19 @@ func (p *MySqlDB) GetCurrentBlock() (block model.NodeBlock, err error) {
 	return
 }
 
-func (p *MySqlDB) GetBlockWithId(id string) (int64, error) {
-	var count int64
-	err := p.db.Get(&count, "SELECT COUNT(1) FROM blocks WHERE id=?", id)
-	return count, err
+func (p *MySqlDB) GetBlockWithId(id string) (count int64, err error) {
+	err = p.db.Get(&count, "SELECT COUNT(1) FROM blocks WHERE id=?", id)
+	return
 }
 
-func (p *MySqlDB) GetLastBlockHeight() (int64, error) {
-	var count int64
-	err := p.db.Get(&count, "SELECT height FROM blocks ORDER by height DESC LIMIT 1")
-	return count, err
+func (p *MySqlDB) GetLastBlockHeight() (count int64, err error) {
+	err = p.db.Get(&count, "SELECT height FROM blocks ORDER by height DESC LIMIT 1")
+	return
 }
 
-func (p *MySqlDB) GetBlockValWithId(id string) (float64, error) {
-	var count float64
-	err := p.db.Get(&count, "SELECT val FROM transactions WHERE block=? AND version=0", id)
-	return count, err
+func (p *MySqlDB) GetBlockValWithId(id string) (count float64, err error) {
+	err = p.db.Get(&count, "SELECT val FROM transactions WHERE block=? AND version=0", id)
+	return
 }
 
 func (p *MySqlDB) GetMiners() (miners []model.Miners, err error) {
@@ -121,18 +124,15 @@ func (p *MySqlDB) GetLatestPayments(limit int) (payments []model.Payment, err er
 
 func (p *MySqlDB) InsertPayment(block string, addr string, val float64, height int64) (err error) {
 	_, err = p.db.Exec("INSERT into payments SET address=?, block=?, height=?, val=?, txn='',done=0", addr, block, height, val)
-
 	return
 }
 
 func (p *MySqlDB) InsertPoolBlock(block string, addr string, height int64, reward float64) (err error) {
 	_, err = p.db.Exec("INSERT IGNORE into blocks SET reward=?, id=?, height=?, miner=?", reward, block, height, addr)
-
 	return
 }
 
-func (p *MySqlDB) GetInfoVal(name string) (string, error) {
-	var val string
-	err := p.db.Get(&val, "SELECT val FROM info WHERE id=?);", name)
-	return val, err
+func (p *MySqlDB) GetInfoVal(name string) (val string, err error) {
+	err = p.db.Get(&val, "SELECT val FROM info WHERE id=?);", name)
+	return
 }

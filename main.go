@@ -11,6 +11,7 @@ import (
 	"github.com/arogolang/arogo/errlog"
 	"github.com/arogolang/arogo/mysqldb"
 	"github.com/arogolang/arogo/pool"
+	"github.com/arogolang/arogo/util"
 	"github.com/arogolang/arogo/vars"
 )
 
@@ -38,8 +39,30 @@ func main() {
 		return
 	}
 
+	if config.File == "" || !util.FileExists(config.File) {
+		if util.FileExists("config.json") {
+			config.File = "config.json"
+		}
+	}
+
 	cfg := config.Get()
 	dbMgr := &vars.PoolDBMgr{}
+
+	if cfg.LogFile != "" {
+		logfile, err := os.OpenFile(cfg.LogFile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		defer logfile.Close()
+
+		if !cfg.Debug {
+			errlog.SetLogLevel(cfg.LogLevel)
+		}
+
+		errlog.AddLogOutput(logfile)
+	}
 
 	var err error
 
@@ -55,7 +78,10 @@ func main() {
 
 	tableExists, err := dbMgr.PoolDB.CheckTables(cfg.PoolDB.DBName, "miners")
 	if err != nil || tableExists == false {
-		dbMgr.PoolDB.InitTables()
+		err = dbMgr.PoolDB.InitTables()
+		if err != nil {
+			errlog.Fatalf("cannot init mysql", err)
+		}
 	}
 
 	pool.NewPoolServer(cfg.PoolWebAddr, dbMgr)

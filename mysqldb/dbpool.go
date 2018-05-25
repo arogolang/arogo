@@ -48,7 +48,7 @@ func (p *MySqlDB) GetIPRejectCount(ip string) (count int64, err error) {
 	return
 }
 
-func (p *MySqlDB) GetNonceCount(nonce string) (cound int64, err error) {
+func (p *MySqlDB) GetNonceCount(nonce string) (count int64, err error) {
 	err = p.db.Get(&count, "SELECT count(1) FROM nonces WHERE nonce=?", nonce)
 	return
 }

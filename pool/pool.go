@@ -241,6 +241,7 @@ func (s *PoolWebService) HandleMine(w http.ResponseWriter, r *http.Request) {
 		protodef.APIEcho(w, mineInfo)
 
 	case "submitNonce":
+
 		ip, _, _ := net.SplitHostPort(r.RemoteAddr)
 		reject, _ := s.dbMgr.PoolDB.GetIPRejectCount(ip)
 		if reject > 0 {
@@ -272,32 +273,25 @@ func (s *PoolWebService) HandleMine(w http.ResponseWriter, r *http.Request) {
 		argon2 := `$argon2i$v=19$m=524288,t=1,p=1` + argon
 		base := fmt.Sprintf("%v-%v-%v-%v", cfg.PublicKey, nonce, vars.GlobalBlockInfo.Block, vars.GlobalBlockInfo.Diffculty)
 
+		errlog.Infof("invalid %v  => %v", base, argon)
+
 		if !util.Argon2Verify(base, argon) {
 			protodef.APIError(w, "Invalid argon "+base+argon2)
 			break
 		}
 
 		hash := base + argon2
-		hash = util.GetAroHash(hash)
-		m := strings.SplitN(hash, "", 2)
-
-		m10, _ := strconv.ParseInt(m[10], 16, 0)
-		m15, _ := strconv.ParseInt(m[15], 16, 0)
-		m20, _ := strconv.ParseInt(m[20], 16, 0)
-		m23, _ := strconv.ParseInt(m[23], 16, 0)
-		m31, _ := strconv.ParseInt(m[31], 16, 0)
-		m40, _ := strconv.ParseInt(m[40], 16, 0)
-		m45, _ := strconv.ParseInt(m[45], 16, 0)
-		m55, _ := strconv.ParseInt(m[55], 16, 0)
+		m := util.GetAroHash(hash)
 
 		duration := fmt.Sprintf("%v%v%v%v%v%v%v%v",
-			m10, m15, m20, m23, m31, m40, m45, m55)
+			m[10], m[15], m[20], m[23], m[31], m[40], m[45], m[55])
+
 		mdiff, _ := strconv.ParseInt(vars.GlobalBlockInfo.Diffculty, 10, 0)
 
 		if len(duration) > 15 || mdiff <= 0 {
 			s.dbMgr.PoolDB.UpdateDBWithRejectNonce(nonce, ip)
 
-			protodef.APIError(w, "Invalid argon "+base+argon2)
+			protodef.APIError(w, "rejected "+base+argon2)
 			break
 		}
 
@@ -305,7 +299,7 @@ func (s *PoolWebService) HandleMine(w http.ResponseWriter, r *http.Request) {
 		result := mresult / mdiff
 
 		if result > 0 && result <= 240 {
-			ok, err := util.SubmitNonceToNode(cfg.NodeAddrURL, argon, nonce, cfg.PublicKey, cfg.PrivateKey)
+			ok, err := util.SubmitNonceToNode(cfg.NodeAddrURL+"/mine.php?q=submitNonce", argon, nonce, cfg.PublicKey, cfg.PrivateKey)
 			if err != nil {
 				errlog.Error(err)
 			} else if ok {
@@ -453,4 +447,5 @@ func NewPoolServer(poolAddr string, dbMgr *vars.PoolDBMgr) {
 	}
 
 	go srv.ListenAndServe()
+	go webService.MonitorBlocks()
 }

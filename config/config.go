@@ -43,11 +43,12 @@ type Config struct {
 
 	Debug bool `json:"debug"`
 
-	CoinName   string `default:"arionum" json:"coinname"`
-	Address    string `json:"address"`
-	PublicKey  string `json:"publickey"`
-	PrivateKey string `json:"privatekey"`
-	Limit      int64  `default:100000 json:"limit"`
+	CoinName   string  `default:"arionum" json:"coinname"`
+	Address    string  `json:"address"`
+	PublicKey  string  `json:"publickey"`
+	PrivateKey string  `json:"privatekey"`
+	MinPayout  float64 `default:5 json:"min_payout"`
+	Limit      int64   `default:100000 json:"limit"`
 
 	FeeAddress    string  `json:"feeaddress"`
 	Fee           float64 `default:0.02 json:"fee"`

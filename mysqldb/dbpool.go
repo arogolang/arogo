@@ -1,6 +1,7 @@
 package mysqldb
 
 import (
+	"database/sql"
 	"fmt"
 	"strings"
 
@@ -67,14 +68,20 @@ func (p *MySqlDB) InsertNonce(nonce string) (err error) {
 
 func (p *MySqlDB) UpdateDBWithRejectNonce(nonce string, ip string) (err error) {
 	_, err = p.db.Exec("DELETE FROM nonces WHERE nonce=?", nonce)
-	_, err = p.db.Exec("INSERT into rejects SET ip=?, data=UNIX_TIMESTAMP() ON DUPLICATE KEY update data=UNIX_TIMESTAMP()", ip)
+	if err != nil {
+		return
+	}
 
+	_, err = p.db.Exec("INSERT into rejects SET ip=?, data=UNIX_TIMESTAMP() ON DUPLICATE KEY update data=UNIX_TIMESTAMP()", ip)
 	return
 }
 
 func (p *MySqlDB) InsertMinersNewShare(addr string, share int64, bdl int64) (err error) {
 	_, err = p.db.Exec("INSERT INTO miners SET  id=?, shares=shares+?, updated=UNIX_TIMESTAMP(),bestdl=? ON DUPLICATE KEY UPDATE shares=shares+?, updated=UNIX_TIMESTAMP()",
 		addr, share, bdl, share)
+	if err != nil {
+		return
+	}
 
 	_, err = p.db.Exec("UPDATE miners SET bestdl=? WHERE id=? AND bestdl>?",
 		bdl, addr, bdl)
@@ -102,13 +109,28 @@ func (p *MySqlDB) GetBlockValWithId(id string) (count float64, err error) {
 	return
 }
 
+func (p *MySqlDB) GetMinerHashRate(id string) (count int64, err error) {
+	err = p.db.Get(&count, "SELECT SUM(hashrate) FROM workers WHERE miner=? AND updated>UNIX_TIMESTAMP()-3600", id)
+	return
+}
+
 func (p *MySqlDB) GetMiners() (miners []model.Miners, err error) {
 	err = p.db.Select(&miners, "SELECT * FROM miners WHERE shares>0 OR historic>0")
 	return
 }
 
+func (p *MySqlDB) GetMinersWithHistoric() (miners []model.Miners, err error) {
+	err = p.db.Select(&miners, "SELECT * FROM miners WHERE historic>0")
+	return
+}
+
 func (p *MySqlDB) GetAllMiners() (miners []model.Miners, err error) {
 	err = p.db.Select(&miners, "SELECT * FROM miners")
+	return
+}
+
+func (p *MySqlDB) GetPendingPayBlocks(start int64, end int64) (blocks []string, err error) {
+	err = p.db.Select(&blocks, "SELECT DISTINCT block FROM payments WHERE height<? AND done=0 AND height>=?", end, start)
 	return
 }
 
@@ -119,6 +141,11 @@ func (p *MySqlDB) GetLatestBlocks(limit int) (blocks []model.Block, err error) {
 
 func (p *MySqlDB) GetLatestPayments(limit int) (payments []model.Payment, err error) {
 	err = p.db.Select(&payments, "SELECT id,address,val,done,txn FROM payments ORDER by id DESC LIMIT ?", limit)
+	return
+}
+
+func (p *MySqlDB) GetPendingPayments(start int64, end int64) (payments []model.Payment, err error) {
+	err = p.db.Select(&payments, "SELECT SUM(val) as val, address FROM payments WHERE height<? AND height>? AND done=0 GROUP by address", end, start)
 	return
 }
 
@@ -134,5 +161,10 @@ func (p *MySqlDB) InsertPoolBlock(block string, addr string, height int64, rewar
 
 func (p *MySqlDB) GetInfoVal(name string) (val string, err error) {
 	err = p.db.Get(&val, "SELECT val FROM info WHERE id=?);", name)
+	return
+}
+
+func (p *MySqlDB) Exec(sql string, args ...interface{}) (ret sql.Result, err error) {
+	ret, err = p.db.Exec(sql)
 	return
 }

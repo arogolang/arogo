@@ -1,0 +1,59 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"path": "appengine/cloudsql",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "d8UwZba+8Y0SDneEqvgZ+0caVHw=",
+			"path": "github.com/go-sql-driver/mysql",
+			"revision": "64db0f7ebe171b596aa9b26f39a79f7413a3b617",
+			"revisionTime": "2018-05-26T09:24:51Z"
+		},
+		{
+			"checksumSHA1": "uZDpIuoqI+M2TLt9mHGnxPfy0DQ=",
+			"path": "github.com/golang/crypto/argon2",
+			"revision": "a3beeb748656e13e54256fd2cde19e058f41f60f",
+			"revisionTime": "2017-02-08T22:11:28Z"
+		},
+		{
+			"checksumSHA1": "5K28zrXSdE1DzF70wWAH5B1vg/s=",
+			"path": "github.com/jmoiron/sqlx",
+			"revision": "2aeb6a910c2b94f2d5eb53d9895d80e27264ec41",
+			"revisionTime": "2018-04-06T16:44:12Z"
+		},
+		{
+			"checksumSHA1": "JxArBxGNRy8PAAM5Rv6gzyuGgu8=",
+			"path": "github.com/jmoiron/sqlx/reflectx",
+			"revision": "2aeb6a910c2b94f2d5eb53d9895d80e27264ec41",
+			"revisionTime": "2018-04-06T16:44:12Z"
+		},
+		{
+			"checksumSHA1": "Yi8ovNuCLs9QqV6qx4VHWF3RY/8=",
+			"path": "github.com/nytimes/gziphandler",
+			"revision": "5032c8878b9dd46cfe8c625c0d9b9f258a560ee8",
+			"revisionTime": "2018-02-27T02:18:10Z"
+		},
+		{
+			"checksumSHA1": "ejjxT0+wDWWncfh0Rt3lSH4IbXQ=",
+			"path": "golang.org/x/crypto/blake2b",
+			"revision": "a3beeb748656e13e54256fd2cde19e058f41f60f",
+			"revisionTime": "2017-02-08T22:11:28Z"
+		},
+		{
+			"checksumSHA1": "hgMzrmP2ui9O0+y5w8lQQdGnPLE=",
+			"path": "golang.org/x/sys/cpu",
+			"revision": "c11f84a56e43e20a78cee75a7c034031ecf57d1f",
+			"revisionTime": "2018-05-25T13:55:20Z"
+		},
+		{
+			"checksumSHA1": "W/pYxFe8/FHT10/wulwesJsOoUw=",
+			"path": "google.golang.org/appengine/cloudsql",
+			"revision": "b1f26356af11148e710935ed1ac8a7f5702c7612",
+			"revisionTime": "2018-05-21T22:34:13Z"
+		}
+	],
+	"rootPath": "github.com/arogolang/arogo"
+}
